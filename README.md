@@ -11,6 +11,14 @@ docker load < yoloweb-v2.tar
 ### 3. Start the app
 docker run -p 5000:5000 yoloweb:v2
 
+## Option 2: Running with Flask (Without Docker)
+
+### 1. Install required packages
+pip install -r requirements.txt
+
+### 2. Run the flask application
+flask run
+
 ### Requirements
 Docker installed
 
