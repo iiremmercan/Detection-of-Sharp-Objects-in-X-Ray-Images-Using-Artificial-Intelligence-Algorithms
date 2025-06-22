@@ -15,5 +15,6 @@ docker run -p 5000:5000 yoloweb:v2
 Docker installed
 
 ## References
-This project uses the [Ultralytics](https://github.com/ultralytics/ultralytics.git) library for object detection (licensed under AGPL-3.0).
-Dataset: https://github.com/OPIXray-author/OPIXray
+# This project uses the [Ultralytics](https://github.com/ultralytics/ultralytics.git) library for object detection (licensed under AGPL-3.0).
+# Dataset: https://github.com/OPIXray-author/OPIXray
+# This project was developed within the scope of TÜBİTAK 2209-A
