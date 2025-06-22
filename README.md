@@ -3,7 +3,7 @@
 
 ### 1. Download the Docker image (.tar file)
 Download the pre-built Docker image from the following location:
-https://example.com/xray-detection.tar
+(https://drive.google.com/drive/folders/1q06LtcS7s_imNlJuXUTjQCu1ERtxhKIC?usp=sharing)
 
 ### 2. Load the Docker image (.tar file)
 docker load < yoloweb-v2.tar
