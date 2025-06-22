@@ -19,7 +19,7 @@ pip install -r requirements.txt
 ### 2. Run the flask application
 flask run
 
-### Requirements
+## Requirements
 Docker installed
 
 ## References
