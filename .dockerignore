@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.zip
+*.tar
+*.tar.gz
+*.whl
+.venv/
+env/
+.git/
+data/
+models/

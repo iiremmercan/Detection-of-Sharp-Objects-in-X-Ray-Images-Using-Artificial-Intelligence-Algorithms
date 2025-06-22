@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    
+    <meta charset="UTF-8">
+    <title>NESNE TESPİTİ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .baslik {
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        #result-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        canvas {
+            border: 1px solid black;
+            margin-top: 10px;
+        }
+        .warning-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none; /* Başlangıçta gizli */
+        }
+        .warning {
+            color: red;
+            font-size: 24px; /* Büyütüldü */
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        .exclamation {
+            color: red;
+            font-size: 24px;
+            margin-right: 5px;
+        }
+        #object-info {
+            font-weight: bold;
+            color: #FFA500; /* Yazı rengi turuncu */
+            padding: 10px; 
+            margin-top: 10px; 
+            font-size: 18px; 
+        }
+        .label-info {
+            font-size: 14px; 
+        }
+        
+        
+        #uploadInput {
+            display: none; /* Eski dosya seçme butonunu gizle */
+        }
+        /* dosya seçme butonu */
+        #customUpload {
+            background-color: #FFA500; 
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-bottom: 10px; 
+        }
+
+        #customUpload:hover {
+            background-color: #FF4500; 
+        }
+    </style>
+</head>
+<body>
+    <div class="baslik">
+        <h1>KESİCİ NESNE TESPİTİ</h1>
+    </div>
+    <!-- Özelleştirilmiş dosya seçme butonu -->
+    <label id="customUpload" for="uploadInput">Dosya Seç</label>
+    <input id="uploadInput" type="file"/>
+    <div id="result-container">
+        <h2>Sonuçlar</h2>
+        <div id="warning-container" class="warning-container">
+            <div id="exclamation" class="exclamation">&#9888;</div>
+            <div id="warning" class="warning"></div>
+        </div>
+        <div id="object-info"></div> <!-- Nesne bilgisini gösteren div -->
+        <canvas></canvas>
+    </div>
+    <form action="/statistics">
+        
+        <button type="submit">Grafik</button>
+    </form> 
+    <script>
+       const input = document.getElementById("uploadInput");
+       input.addEventListener("change", async (event) => {
+           const file = event.target.files[0];
+           const data = new FormData();
+           data.append("image_file", file, "image_file");
+           const response = await fetch("/detect", {
+               method: "post",
+               body: data
+           });
+           const boxes = await response.json();
+           draw_image_and_boxes(file, boxes);
+       });
+
+       function draw_image_and_boxes(file, boxes) {
+          const img = new Image();
+          img.src = URL.createObjectURL(file);
+          img.onload = () => {
+              const canvas = document.querySelector("canvas");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+              ctx.strokeStyle = "#00FF00";
+              ctx.lineWidth = 3;
+              ctx.font = "18px serif";
+              const warningContainer = document.getElementById('warning-container');
+              const warningDiv = document.getElementById('warning');
+              const objectInfoDiv = document.getElementById('object-info');
+              warningDiv.innerHTML = ''; 
+              objectInfoDiv.innerHTML = ''; 
+              let isAnyLabelDetected = false; 
+              
+              // Nesne bilgisini oluşturan string
+              const objectInfoString = generateObjectInfo(boxes);
+              objectInfoDiv.innerHTML = objectInfoString;
+
+              boxes.forEach(([x1, y1, x2, y2, label, confidence]) => {
+                  ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+                  ctx.fillStyle = "#00ff00";
+                  const width = ctx.measureText(label).width;
+                  ctx.fillRect(x1, y1, width + 10, 25);
+                  ctx.fillStyle = "#000000";
+                  ctx.fillText(`${label}`, x1, y1 + 18);
+
+                  
+                  if (objectInfoString.includes(label)) {
+                      ctx.font = "14px serif"; 
+                      ctx.fillStyle = "#00ff00"; 
+                      ctx.fillRect(x1, y2, ctx.measureText(`(${(confidence * 100).toFixed(2).replace(/\.?0+$/, '')}%)`).width + 10, 20);
+                      ctx.fillStyle = "#FFA500"; // Yazı rengi turuncu
+                      ctx.fillText(`(${(confidence * 100).toFixed(2).replace(/\.?0+$/, '')}%)`, x1 + 5, y2 + 15);
+                  }
+
+                  
+                  if (label.trim() !== '') {
+                      isAnyLabelDetected = true;
+                  }
+              });
+
+              // Herhangi bir etiket tespiti durumunda ekrana uyarı ve işaret yazdırma
+              if (isAnyLabelDetected) {
+                  warningDiv.innerHTML = '<span class="warning">Tehlikeli Madde</span>';
+                  warningContainer.style.display = 'flex'; // Uyarı ve işareti göster
+              } else {
+                  warningContainer.style.display = 'none'; // Uyarı ve işareti gizle
+              }
+          }
+       }
+
+       // Nesne bilgisini oluşturan yardımcı fonksiyon
+       function generateObjectInfo(boxes) {
+           return boxes.map(([_, __, ___, ____, label, confidence]) => `Yuzde ${(confidence * 100).toFixed(2).replace(/\.?0+$/, '')} oraninda ${translateLabel(label)} tespit edildi.`).join('<br>');
+       }
+
+       // Etiketleri çeviren fonksiyon
+       function translateLabel(label) {
+           const translations = {
+               'Straight_Knife': 'Duz Bicak',
+               'Scissor':'Makas',
+               'Utility_Knife': 'Maket Biçagi',
+               'Folding_Knife':'Katlanır Bıçak',
+               'Multi_Tool_Knife':'Çok Amaçlı Bıçak'
+               
+           };
+
+           return translations[label] || label;
+       }
+    </script>  
+</body>
+</html>

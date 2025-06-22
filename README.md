@@ -1,0 +1,1 @@
+# Yapay-Zeka-Algoritmalar-ile-X-Ray-Goruntulerinde-Kesici-Aletlerin-Tespiti

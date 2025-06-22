@@ -1,0 +1,9 @@
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:127.0.0.1 - - [17/Feb/2025 22:03:00] "GET / HTTP/1.1" 200 -
+ERROR:root:Error during object detection processing: table Detections has no column named date
+ERROR:root:Error during object detection: table Detections has no column named date
+INFO:werkzeug:127.0.0.1 - - [17/Feb/2025 22:03:07] "[35m[1mPOST /detect HTTP/1.1[0m" 500 -
+ERROR:root:Error generating statistics: no such column: date
+INFO:werkzeug:127.0.0.1 - - [17/Feb/2025 22:03:15] "[35m[1mGET /statistics HTTP/1.1[0m" 500 -
